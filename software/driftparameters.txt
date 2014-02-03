@@ -1,0 +1,2 @@
+time for 180 deg drift with linear fit= 5:41
+time for 180 deg drift with no fit= 1:43.5

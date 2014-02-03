@@ -1,0 +1,26 @@
+Notes on drivers:
+
+MPU9150.c:
+- To ensure that all the values from the main IMU module
+  is from the same sampling instant, use a burst read
+  to get the values. The function for this is imu_get_acc_gyr_temp_measurements.
+
+- You must call imu_take_magnet_measurement() before imu_get_magnet_measurement,
+  otherwise the magnetometer measurements do not update.
+  
+- To ensure that the magnetometer measurements are ready to be read, call
+  imu_wait_magnet_measurement. This function delays until magnetometer
+  measurements are ready.
+  
+- imu_check_magnet_measurement() returns 1 when magnetometer data is ready,
+  0 when it isn't
+
+- To get all the values from the same sampling instant, you can call
+  imu_take_magnet_measurement();
+  imu_get_acc_gyr_temp_measurements(uint8_t* buffer);
+  imu_wait_magnet_measurement();
+  imu_get_magnet_measurement(uint8_t* buffer);
+  in this order.
+  
+radio.c
+- LQI cannot be obtained directly from a register.
