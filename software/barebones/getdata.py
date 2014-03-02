@@ -60,7 +60,7 @@ def realPlot(buf, lines, fig):
 
 if __name__=="__main__":
   #initialize motetalk/serial port stuff
-  sport = "/dev/tty.usbmodemfd121" #raw_input('port \n')
+  sport = "/dev/tty.usbmodemfa131" #raw_input('port \n')
   chan = "15" #raw_input('Channel to sniff \n')
   filename = "data"
   log = open(filename + ".txt", 'w')
@@ -77,7 +77,8 @@ if __name__=="__main__":
     pass
 
   parse = False 
-  PARSE_WIDTH = 20 
+  PARSE_WIDTH = 100 
+  TAIL_WIDTH = 20
 
   print "lets start crackin"
   #init plots
@@ -96,7 +97,7 @@ if __name__=="__main__":
       #timestamp
       
       #unpack packet into list
-      arr = map(ord, arr)
+      arr = map(ord, arr[PARSE_WIDTH-TAIL_WIDTH:])
       #check if packet error: checks packet length and crc, hard-coded method
       if len(arr) > 28:
         if ((arr[22] * 256 + arr[23]) == (sum(arr) - arr[22] - arr[23] - arr[24] - arr[25] - arr[26] - arr[27] - arr[28])):
