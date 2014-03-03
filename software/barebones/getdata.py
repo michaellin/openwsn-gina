@@ -52,7 +52,9 @@ def preparePlots(drawSize):
 #Update all plots
 def realPlot(buf, lines, fig):
   for i in range(3):
-    buf[i] /= np.max(np.abs(buf[i]))
+    norm = np.max(np.abs(buf[i]))
+    print norm
+    buf[i] /= norm
     lines[i].set_ydata(buf[i])
   plt.draw()
   plt.pause(0.01)
@@ -60,7 +62,7 @@ def realPlot(buf, lines, fig):
 
 if __name__=="__main__":
   #initialize motetalk/serial port stuff
-  sport = "/dev/tty.usbmodemfa131" #raw_input('port \n')
+  sport = "/dev/tty.usbmodemfd121" #raw_input('port \n')
   chan = "15" #raw_input('Channel to sniff \n')
   filename = "data"
   log = open(filename + ".txt", 'w')
