@@ -102,7 +102,7 @@ if __name__=="__main__":
   except: 
     pass
 
-  frames = 50 
+  frames = 20 
   print "lets get crackin"
   fig, ax, lines = preparePlots(frames)
   plt.show()
