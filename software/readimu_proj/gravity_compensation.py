@@ -27,7 +27,7 @@ def end(m):
 
 #Initialize plots
 def preparePlots(frames):
-	sensors = [(sen, dim) for sen in ["accel", "gyro", "magnet"] for dim in ["x","y","x"]]
+	sensors = [(sen, dim) for sen in ["accel", "gyro", "magnet"] for dim in ["x","y","z"]]
 	width, height = plt.figaspect(0.35)
 	fig, ax = plt.subplots(nrows=3,ncols=2,sharex=True,figsize=(width,height))
 	axes = [x for ax_row in ax for x in ax_row]
@@ -82,10 +82,11 @@ def fillData(frames, norm=False):
 		row /= np.linalg.norm(row)
 	return buf 
 
+gravity = [0, 0, 0]
+
 def fillDataGravity(frames, norm=False):
 	buf = np.zeros(0)
 	#global variable: GRAVITY - will update after obtaining new packet
-	gravity = [0, 0, 0]
 	for i in range(frames):
 		#receive packet
 		done = 0
