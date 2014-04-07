@@ -81,7 +81,7 @@ def quatmaker(m_ini, accel, marg, gyro, q, t):
 	alpha = 0
 	accel_avg = np.sum(accel[0:20],0)/20
 	marg_avg = np.sum(marg[0:20],0)/20
-	print marg_avg
+	#print marg_avg
 	qa = setq(accel_avg, marg_avg, m_ini)
 	qg = changequat(gyro, t, q)
 	q0 = alpha*qa[0] + (1-alpha)*qg[0]

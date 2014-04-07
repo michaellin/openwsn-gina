@@ -95,7 +95,7 @@ if __name__=="__main__":
   #timestamp
   t0 = time.time()
   #initialize motetalk/serial port stuff
-  sport = "/dev/tty.usbmodemfd121" #raw_input('port \n')
+  sport = "/dev/tty.usbmodemfa131" #raw_input('port \n')
   chan = "15" #raw_input('Channel to sniff \n')
   filename = "data"
   log = open(filename + ".txt", 'w')
