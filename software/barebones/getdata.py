@@ -53,7 +53,6 @@ def preparePlots(drawSize):
 def realPlot(buf, lines, fig):
   for i in range(3):
     norm = np.max(np.abs(buf[i]))
-    print norm
     buf[i] /= norm
     lines[i].set_ydata(buf[i])
   plt.draw()
@@ -79,8 +78,7 @@ if __name__=="__main__":
     pass
 
   parse = False 
-  PARSE_WIDTH = 100 
-  TAIL_WIDTH = 20
+  PARSE_WIDTH = 20 
 
   print "lets start crackin"
   #init plots
@@ -99,7 +97,7 @@ if __name__=="__main__":
       #timestamp
       
       #unpack packet into list
-      arr = map(ord, arr[PARSE_WIDTH-TAIL_WIDTH:])
+      arr = map(ord, arr)
       #check if packet error: checks packet length and crc, hard-coded method
       if len(arr) > 28:
         if ((arr[22] * 256 + arr[23]) == (sum(arr) - arr[22] - arr[23] - arr[24] - arr[25] - arr[26] - arr[27] - arr[28])):

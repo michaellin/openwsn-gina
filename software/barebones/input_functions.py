@@ -11,8 +11,11 @@ def getvalues(a,b):
 def accscale(a):
 	return a*39.2266/65535
 
+####
+# Gyroscope Full-Scale Range FS_SEL=3 +/- 2000 deg/s
+# Sensitivity factor FSSEL=1 65.5 LSB/(deg/s)
 def gyroscale(a):
-	return a*3.14*2000./(65535*180)
+	return a*np.pi*2000./(65535*180)
 
 def magscale(a):
 	return a*2452./65535
@@ -38,7 +41,7 @@ def preparepkt(arr):
 	mx = magscale(getvalues(arr[17] ,arr[16]))
 	my = magscale(getvalues(arr[19] ,arr[18]))
 	mz = magscale(getvalues(arr[21] ,arr[20]))
-	return ax, ay, az, gx, gy, gz, mx, my, mz, temp
+	return np.array([ax, ay, az, gx, gy, gz, mx, my, mz, temp])
 	
 def make_array3pkt(v1, v2, v3):
 	return np.array([[v1, v2, v3]])

@@ -73,8 +73,6 @@ if __name__=="__main__":
 	margpkt = inpf.make_array3pkt(0,0,0)
 	j = 0
 	while 1:
-    #limit animation rate to 2000
-		rate (2000)
 		#receive packet
 		(arr, t, crc) = m.nextline(parse)
 		#unpack packet into list

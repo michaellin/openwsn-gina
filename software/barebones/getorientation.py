@@ -9,12 +9,7 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.axes as Axes
 import matplotlib.animation as animation
-
-#multiprocessing
-from multiprocessing import Process
-from Queue import Queue
-import threading
-
+import quaternion as quat
 
 def startup(m):
   m.sendbase(cmd.radio(int(chan)))
@@ -30,8 +25,8 @@ def end(m):
   m.end()
 
 #Initialize plots
-def preparePlots(frames, ylim):
-  sensors = [(sen, dim) for sen in ["accel", "gyro", "magnet"] for dim in ["x","y","z"]]
+def preparePlots(frames,ylim):
+  sensors = [(sen, dim) for sen in ["accel", "gyro", "magnet"] for dim in ["x","y","x"]]
   width, height = plt.figaspect(0.35)
   fig, ax = plt.subplots(nrows=3,ncols=2,sharex=True,figsize=(width,height))
   axes = [x for ax_row in ax for x in ax_row]
@@ -61,45 +56,63 @@ def getPacket(deg):
         newpkt = inpf.preparepkt(arr)[:deg]
         return newpkt
 
-
-def fillData(frames, norm=False):
+#Fill up buffer with sensor data
+def fillData(frames, deg, norm=False):
   buf = []
   for i in range(frames):
     #receive packet
-    done = 0
-    while not done:
-      (arr, t, crc) = m.nextline(False)
-      #unpack packet into list
-      arr = map(ord, arr)
-      #check if packet error: checks packet length and crc, hard-coded method
-      if len(arr) > 28:
-        if ((arr[22] * 256 + arr[23]) == (sum(arr) - arr[22] - arr[23] - arr[24] - arr[25] - arr[26] - arr[27] - arr[28])):
-          done = 1
-          #separates packets into values, puts things into buffer
-          newpkt = inpf.preparepkt(arr)[:6]
-          buf = np.append(buf, newpkt, 1)
-  buf = np.reshape(buf,(frames,6))
-# for row in buf:
-#   row /= np.linalg.norm(row)
-  return buf 
+    newpkt = getPacket(deg)
+    buf += [newpkt,]
+  buf = np.array(buf)
+  buf = np.reshape(buf,(frames,deg))
+  if norm:
+    for row in buf:
+      row /= np.linalg.norm(row)
+  return buf
+
+#Fill up buffer with euler angles data
+def fillAngles(q, frames, norm=False):
+  buf = []
+  for i in range(frames):
+    #receive packet
+    newpkt = getPacket(9)
+    #euler angles in order of yaw, pitch and roll
+    q, euler = procQuats(q, newpkt)
+    buf += [euler,]
+  buf = np.concatenate(buf)
+  buf = np.reshape(buf, (frames, 3))
+  return buf, q
 
 #Update all plots
 def realPlot(frames, lines, degrees=1):
   #overhead = 30
-  buf =  fillData(frames,norm=True)
+  buf =  fillData(frames, degrees, norm=False)
   for i in range(degrees):
     lines[i].set_ydata(buf[:,i])
   plt.draw()
+
+#Update all plots with quaternions orientation
+def realPlotAngles(q, frames, lines):
+  buf, newQuat =  fillAngles(q, frames)
+  for i in range(3):
+    lines[i].set_ydata(buf[:,i])
+  plt.draw()
+  return newQuat
+
+#Takes in euler angles and returns euler angles as well
+def procQuats(q, data):
+  newQuat = quat.updateQuat(q, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8])
+  eulers = quat.quat2Euler(newQuat)
+  return newQuat, eulers
 
 if __name__=="__main__":
   #timestamp
   t0 = time.time()
   #initialize motetalk/serial port stuff
-  sport = "/dev/tty.usbmodemfd121" #raw_input('port \n')
+  sport = "/dev/tty.usbmodemfa131" #raw_input('port \n')
   chan = "15" #raw_input('Channel to sniff \n')
   filename = "data"
   log = open(filename + ".txt", 'w')
-  
   m = motetalk.motetalk(sport=sport,brate=115200)
   startup(m)
   
@@ -114,22 +127,16 @@ if __name__=="__main__":
 
   frames = 30 
   print "lets get crackin"
-  fig, ax, lines = preparePlots(frames, [-1, 1])
+  q_init = np.array([1, 0, 0, 0])
+  fig, ax, lines = preparePlots(frames, [-1.5,1.5])
   plt.show()
+
+  data = getPacket(9)
+  newQuat, euler = procQuats(q_init, data)
+  #Main loop
   while (1):
-    realPlot(frames, lines, degrees=6)
+    #newQuat, euler = procQuats(newQuat, data)
+    #realPlot(frames, lines, degrees=6)
+    newQuat = realPlotAngles(newQuat, frames, lines)
 
-  #Use as blocking queue
-# q = Queue()
-# p1 = threading.Thread( target=get_data, args=(frames, q))
-# p2 = threading.Thread( target= realPlot, args=(frames, lines, q, 3))
-# p1.start()
-# p2.start()
-##exec('get_data(frames,q)')
-##exec('realPlot(frames, lines,q, 3)')
-# time.sleep(100)
-# p1.terminate()
-# p2.terminate()
-  #init plots
-  #ani = animation.FuncAnimation(fig, realPlot, fargs=(frames, lines, 3), frames=20, interval=25, blit=False)
-
+    
