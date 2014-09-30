@@ -67,7 +67,7 @@ def updateQuat(q, ax, ay, az, gx, gy, gz, mx, my, mz):
     q2q3 = q[2] * q[3]
     q3q3 = q[3] * q[3]
 
-    #Rederence direction of Earth using mag data
+    #Reference direction of Earth using mag data
     hx = (mx * q0q0) - (_2q0my * q[3]) + (_2q0mz * q[2]) + (mx * q1q1) + (_2q1 * my * q[2]) + (_2q1 * mz * q[3]) - (mx * q2q2) - (mx * q3q3)
     hy = (_2q0mx * q[3]) + (my * q0q0) - (_2q0mz * q[1]) + (_2q1mx * q[2]) - (my * q1q1) + (my * q2q2) + (_2q2 * mz * q[3]) - (my * q3q3)
     _2bx = np.sqrt(hx **2 + hy **2)
